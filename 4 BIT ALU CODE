@@ -1,0 +1,58 @@
+
+// 4-bit ALU
+module simple_4bit_alu(
+    input [3:0] a,
+    input [3:0] b,
+    input [1:0] alu_sel,
+    output reg [3:0] alu_out,
+    output reg carryout
+);
+
+always @(*) begin
+    carryout = 0;
+    case (alu_sel)
+        2'b00: alu_out = a & b; // AND operation
+        2'b01: alu_out = a | b; // OR operation
+        2'b10: {carryout, alu_out} = a + b; // ADD operation
+        2'b11: {carryout, alu_out} = a - b; // SUBTRACT operation
+        default: alu_out = 4'b0000; // Default case
+    endcase
+end
+
+endmodule
+
+// Testbench for 4-bit ALU
+module simple_4bit_alu_tb;
+
+reg [3:0] a;
+reg [3:0] b;
+reg [1:0] alu_sel;
+wire [3:0] alu_out;
+wire carryout;
+
+// Instantiate the ALU
+simple_4bit_alu uut (
+    .a(a),
+    .b(b),
+    .alu_sel(alu_sel),
+    .alu_out(alu_out),
+    .carryout(carryout)
+);
+
+initial begin
+    // Initialize inputs
+    a = 4'b0000;
+    b = 4'b0000;
+    alu_sel = 2'b00;
+
+    // Apply test vectors
+    #10 a = 4'b1100; b = 4'b1010; alu_sel = 2'b00; // AND
+    #10 a = 4'b1100; b = 4'b1010; alu_sel = 2'b01; // OR
+    #10 a = 4'b0101; b = 4'b0011; alu_sel = 2'b10; // ADD
+    #10 a = 4'b1000; b = 4'b0110; alu_sel = 2'b11; // SUBTRACT
+
+    // Finish simulation
+    #10 $finish;
+end
+
+endmodule

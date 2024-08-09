@@ -1,0 +1,86 @@
+module alu16 (
+    input [15:0] a,
+    input [15:0] b,
+    input [3:0] alu_sel,
+    output reg [15:0] alu_out,
+    output reg carryout
+);
+
+always @(*) begin
+    carryout = 0;
+    case (alu_sel)
+        4'b0000: begin
+            alu_out = a & b;  // AND operation
+            carryout = 0;
+        end
+        4'b0001: begin
+            alu_out = a | b;  // OR operation
+            carryout = 0;
+        end
+        4'b0010: begin
+            {carryout, alu_out} = a + b;  // Addition operation
+        end
+        4'b0011: begin
+            {carryout, alu_out} = a - b;  // Subtraction operation
+        end
+        4'b0100: begin
+            alu_out = a ^ b;  // XOR operation
+            carryout = 0;
+        end
+        4'b0101: begin
+            alu_out = ~(a | b);  // NOR operation
+            carryout = 0;
+        end
+        4'b0110: begin
+            alu_out = a << 1;  // Left shift operation
+            carryout = 0;
+        end
+        4'b0111: begin
+            alu_out = a >> 1;  // Right shift operation
+            carryout = 0;
+        end
+        default: begin
+            alu_out = 16'b0000000000000000;  // Default value
+            carryout = 0;
+        end
+    endcase
+end
+
+endmodule
+module alu16_tb;
+
+reg [15:0] a;
+reg [15:0] b;
+reg [3:0] alu_sel;
+wire [15:0] alu_out;
+wire carryout;
+
+// Instantiate the ALU module
+alu16 uut (
+    .a(a),
+    .b(b),
+    .alu_sel(alu_sel),
+    .alu_out(alu_out),
+    .carryout(carryout)
+);
+
+initial begin
+    // Initialize inputs
+    a = 16'd0;
+    b = 16'd0;
+    alu_sel = 4'b0000;
+
+    // Apply test vectors
+    a = 16'd12; b = 16'd15; alu_sel = 4'b0000; #10;  // AND
+    a = 16'd12; b = 16'd15; alu_sel = 4'b0001; #10;  // OR
+    a = 16'd10; b = 16'd5; alu_sel = 4'b0010; #10;   // Addition
+    a = 16'd15; b = 16'd5; alu_sel = 4'b0011; #10;   // Subtraction
+    a = 16'd12; b = 16'd15; alu_sel = 4'b0100; #10;  // XOR
+    a = 16'd12; b = 16'd15; alu_sel = 4'b0101; #10;  // NOR
+    a = 16'd3; alu_sel = 4'b0110; #10;                // Left Shift
+    a = 16'd12; alu_sel = 4'b0111; #10;               // Right Shift
+
+    $finish;
+end
+
+endmodule
